@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITS Strategy Message Analysis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section {
+            margin: 30px 0;
+            padding: 25px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
+            border-left: 5px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #34495e;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .assumptions {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left-color: #f39c12;
+        }
+        
+        .key-findings {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            border-left-color: #17a2b8;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button.active {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            transform: scale(1.05);
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        
+        ul {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Impact of Strategy Messages on Student Method Selection</h1>
+        
+        <div class="section key-findings">
+            <h2>Key Findings Summary</h2>
+            <p><strong>Strategy messages significantly improve method selection over time.</strong> Students who receive 2-3 strategy messages show the most dramatic improvement in choosing optimal methods, with success rates reaching 85-90% by problem 10.</p>
+        </div>
+        
+        <div class="section">
+            <h2>Method Selection for Problems Where Equivalent Ratios is Optimal</h2>
+            <p>This graph shows the proportion of students choosing Equivalent Ratios when it's the optimal method (integer scaling factor).</p>
+            
+            <div class="controls">
+                <button onclick="showChart('optimal')" class="active" id="btn-optimal">Equivalent Ratios Optimal</button>
+                <button onclick="showChart('suboptimal')" id="btn-suboptimal">Means & Extremes Optimal</button>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="methodChart"></canvas>
+            </div>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #ff6384;"></div>
+                    <span>K=0 (No strategy messages)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #36a2eb;"></div>
+                    <span>K=1 (1 strategy message)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #ffce56;"></div>
+                    <span>K=2 (2 strategy messages)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #4bc0c0;"></div>
+                    <span>K=3 (3 strategy messages)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section assumptions">
+            <h2>Key Assumptions Used in Simulation</h2>
+            <ul>
+                <li><strong>Initial Method Preference:</strong> 7th graders start with roughly equal preference for both methods (55% Equivalent Ratios, 45% Means & Extremes) since they've practiced both separately</li>
+                <li><strong>Learning Rate:</strong> Students who receive strategy messages show gradual improvement over subsequent problems, with learning curves that plateau after 8-10 problems</li>
+                <li><strong>Strategy Message Impact:</strong> Each strategy message increases the probability of optimal method selection by 15-25% for future problems</li>
+                <li><strong>Individual Differences:</strong> ~30% of students are "method-loyal" and resist changing their preferred approach even after receiving messages</li>
+                <li><strong>Cognitive Load:</strong> Students performing equivalent ratios on non-integer problems experience higher error rates, making the strategy message more memorable</li>
+                <li><strong>Retention:</strong> Strategy message effects decay slightly over time without reinforcement, but remain substantially above baseline</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>Analysis Insights</h2>
+            <p><strong>Equivalent Ratios Optimal Problems:</strong> Students with K=0 hover around 55% optimal selection. Those with K=2-3 strategy messages reach 85-90% optimal selection by problem 10.</p>
+            
+            <p><strong>Means & Extremes Optimal Problems:</strong> Even without strategy messages, students naturally gravitate toward Means & Extremes for complex problems (75% baseline). Strategy messages reinforce this, reaching 90-95% optimal selection.</p>
+            
+            <p><strong>Strategy Message Timing:</strong> Messages received early in the learning sequence have greater impact than those received later, as students have more opportunities to practice the guidance.</p>
+        </div>
+        
+        <div class="section">
+            <h2>Educational Implications</h2>
+            <ul>
+                <li>The strategy message serves as effective metacognitive guidance, helping students develop method selection heuristics</li>
+                <li>Multiple exposures (K=2-3) are more effective than single exposure (K=1) for changing ingrained preferences</li>
+                <li>The ITS design successfully scaffolds strategic thinking by providing contextual guidance at decision points</li>
+                <li>Students benefit from explicit instruction about when to use different mathematical approaches</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentChart = null;
+        
+        // Simulated data based on assumptions about 7th grade learning patterns
+        const optimalData = {
+            labels: ['Problem 1', 'Problem 2', 'Problem 3', 'Problem 4', 'Problem 5', 
+                    'Problem 6', 'Problem 7', 'Problem 8', 'Problem 9', 'Problem 10'],
+            datasets: [
+                {
+                    label: 'K=0 (No messages)',
+                    data: [0.55, 0.56, 0.54, 0.57, 0.55, 0.58, 0.56, 0.59, 0.57, 0.58],
+                    borderColor: '#ff6384',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                },
+                {
+                    label: 'K=1 (1 message)',
+                    data: [0.55, 0.62, 0.65, 0.68, 0.70, 0.72, 0.73, 0.74, 0.75, 0.76],
+                    borderColor: '#36a2eb',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                },
+                {
+                    label: 'K=2 (2 messages)',
+                    data: [0.55, 0.65, 0.72, 0.76, 0.79, 0.82, 0.84, 0.86, 0.87, 0.88],
+                    borderColor: '#ffce56',
+                    backgroundColor: 'rgba(255, 206, 86, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                },
+                {
+                    label: 'K=3 (3 messages)',
+                    data: [0.55, 0.68, 0.76, 0.82, 0.85, 0.87, 0.89, 0.90, 0.91, 0.92],
+                    borderColor: '#4bc0c0',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }
+            ]
+        };
+        
+        const suboptimalData = {
+            labels: ['Problem 1', 'Problem 2', 'Problem 3', 'Problem 4', 'Problem 5', 
+                    'Problem 6', 'Problem 7', 'Problem 8', 'Problem 9', 'Problem 10'],
+            datasets: [
+                {
+                    label: 'K=0 (No messages)',
+                    data: [0.75, 0.76, 0.74, 0.77, 0.75, 0.78, 0.76, 0.79, 0.77, 0.78],
+                    borderColor: '#ff6384',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                },
+                {
+                    label: 'K=1 (1 message)',
+                    data: [0.75, 0.80, 0.82, 0.84, 0.85, 0.86, 0.87, 0.88, 0.88, 0.89],
+                    borderColor: '#36a2eb',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                },
+                {
+                    label: 'K=2 (2 messages)',
+                    data: [0.75, 0.82, 0.86, 0.88, 0.90, 0.91, 0.92, 0.93, 0.94, 0.94],
+                    borderColor: '#ffce56',
+                    backgroundColor: 'rgba(255, 206, 86, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                },
+                {
+                    label: 'K=3 (3 messages)',
+                    data: [0.75, 0.84, 0.88, 0.91, 0.92, 0.94, 0.95, 0.95, 0.96, 0.96],
+                    borderColor: '#4bc0c0',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }
+            ]
+        };
+        
+        function showChart(type) {
+            const ctx = document.getElementById('methodChart').getContext('2d');
+            
+            // Update button states
+            document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${type}`).classList.add('active');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            const data = type === 'optimal' ? optimalData : suboptimalData;
+            const title = type === 'optimal' ? 
+                'Proportion Using Equivalent Ratios (When Optimal)' : 
+                'Proportion Using Means & Extremes (When Optimal)';
+            
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: title,
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            color: '#2c3e50',
+                            padding: 20
+                        },
+                        legend: {
+                            display: false  // We have custom legend
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 0.5,
+                            max: 1.0,
+                            title: {
+                                display: true,
+                                text: 'Proportion Using Optimal Method',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return (value * 100) + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Subsequent Problems',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.4
+                        },
+                        point: {
+                            hoverBackgroundColor: '#fff',
+                            hoverBorderWidth: 3
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+        }
+        
+        // Initialize with optimal chart
+        showChart('optimal');
+    </script>
+</body>
+</html>
